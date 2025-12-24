@@ -1,0 +1,41 @@
+[
+  {
+    "id": 1,
+    "title": "Python Developer Intern",
+    "company": "TechSoft",
+    "domain": "Software Development",
+    "required_skills": ["Python", "Django"],
+    "location": "Delhi",
+    "duration": "6 months",
+    "stipend": "INR 12000",
+    "description": "Work on backend APIs.",
+    "apply_link": "https://example.com/apply/1",
+    "posting_date": "2025-09-10"
+  },
+  {
+    "id": 2,
+    "title": "Data Analyst Intern",
+    "company": "DataCorp",
+    "domain": "Data Science",
+    "required_skills": ["Python", "SQL", "Excel"],
+    "location": "Remote",
+    "duration": "3 months",
+    "stipend": "INR 10000",
+    "description": "Analyze datasets.",
+    "apply_link": "https://example.com/apply/2",
+    "posting_date": "2025-09-12"
+  },
+  {
+    "id": 3,
+    "title": "Fullstack Intern",
+    "company": "DataCorp",
+    "domain": "Fullstack",
+    "required_skills": ["html","css","javascript","java"],
+    "location": "jaipur",
+    "duration": "3 months",
+    "stipend": "INR 10000",
+    "description": "FrontEnd Developer",
+    "apply_link": "https://example.com/apply/2",
+    "posting_date": "2025-09-14"
+  }
+]

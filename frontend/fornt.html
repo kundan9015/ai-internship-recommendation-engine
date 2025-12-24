@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Internship MVP</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f9f9f9;
+      color: #333;
+    }
+
+    header {
+      background-color: #1e3a8a;
+      color: white;
+      padding: 30px 20px;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 2.5em;
+    }
+
+    .buttons {
+      margin-top: 15px;
+    }
+
+    .buttons button {
+      margin: 5px;
+      padding: 10px 20px;
+      font-size: 1em;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      background-color: #f97316;
+      color: white;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 30px auto;
+      padding: 20px;
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="file"] {
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    input[type="submit"] {
+      margin-top: 20px;
+      padding: 12px;
+      background-color: #1e3a8a;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 1em;
+      cursor: pointer;
+    }
+
+    .offer {
+      margin-top: 30px;
+      padding: 15px;
+      background-color: #e0f2fe;
+      border-left: 5px solid #1e3a8a;
+      border-radius: 5px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    .card {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 16px;
+    }
+
+    .internship {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .btn {
+      padding: 8px 12px;
+      background: #1e3a8a;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      text-decoration: none;
+    }
+
+    .muted { color: #6b7280; }
+
+    table.profile { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    table.profile th, table.profile td { border: 1px solid #e5e7eb; padding: 8px; text-align: left; vertical-align: top; }
+    table.profile th { background: #f3f4f6; width: 180px; }
+    table.profile td, table.profile th { word-break: break-word; white-space: normal; }
+    table.profile td a { word-break: break-all; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Internship MVP</h1>
+    <div class="buttons">
+      <button type="button">Register</button>
+      <button type="button">Sign Up</button>
+      <button type="button">Login</button>
+    </div>
+  </header>
+
+  <div class="container">
+    <form id="resumeForm">
+      <label for="name">Full Name</label>
+      <input type="text" id="name" name="name" />
+
+      <label for="email">Email Address</label>
+      <input type="email" id="email" name="email" />
+
+      <label for="phone">Phone Number</label>
+      <input type="tel" id="phone" name="phone" />
+
+      <label for="resume">Upload Resume</label>
+      <input type="file" id="resume" name="resume" accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png" required />
+
+      <input type="submit" id="submitBtn" value="Submit & Check Internship" />
+    </form>
+
+    <div class="offer">
+      <strong>🎉 Internship Offer:</strong> Based on your resume, we’ll get back to you with exciting opportunities!
+    </div>
+
+    <div id="profileSection" class="card" style="display:none; margin-top:20px;">
+      <h3>Extracted Profile</h3>
+      <div id="profileGrid"></div>
+    </div>
+
+    <div id="internshipsSection" class="card" style="display:none; margin-top:20px;">
+      <h3>Top Internships</h3>
+      <div id="internshipsList"></div>
+      <div id="noMatches" class="muted" style="display:none;">No matching internships found.</div>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('resumeForm');
+    const resumeInput = document.getElementById('resume');
+    const submitBtn = document.getElementById('submitBtn');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!resumeInput.files.length) {
+        alert('Please upload a resume file.');
+        return;
+      }
+      const original = submitBtn.value;
+      submitBtn.disabled = true;
+      submitBtn.value = 'Uploading...';
+      try {
+        const fd = new FormData();
+        fd.append('file', resumeInput.files[0]);
+        const resp = await fetch('http://localhost:8000/upload', { method: 'POST', body: fd });
+        if (!resp.ok) throw new Error('Upload failed');
+        const data = await resp.json();
+
+        // Profile
+        const profile = data.profile || {};
+        document.getElementById('profileSection').style.display = 'block';
+        const grid = document.getElementById('profileGrid');
+        const rows = [
+          ['Name', profile.name || ''],
+          ['Email', profile.email || ''],
+          ['Phone', profile.phone || ''],
+          ['Location', profile.location || ''],
+          ['LinkedIn', profile.linkedin ? `<a href="${profile.linkedin}" target="_blank">${profile.linkedin}</a>` : ''],
+          ['GitHub', profile.github ? `<a href="${profile.github}" target="_blank">${profile.github}</a>` : ''],
+          ['Skills', Array.isArray(profile.skills) ? profile.skills.join(', ') : ''],
+          ['Certifications', Array.isArray(profile.certifications) ? profile.certifications.join('<br>') : ''],
+          ['Experience', Array.isArray(profile.experience) ? profile.experience.join('<br>') : ''],
+          ['Projects', Array.isArray(profile.projects) ? profile.projects.join('<br>') : ''],
+          ['Education', Array.isArray(profile.education) ? profile.education.join('<br>') : ''],
+        ];
+        const tableHtml = `
+          <table class="profile">
+            <tbody>
+              ${rows.map(([k,v]) => `<tr><th>${k}</th><td>${v}</td></tr>`).join('')}
+            </tbody>
+          </table>
+        `;
+        grid.innerHTML = tableHtml;
+
+        // Internships
+        const listEl = document.getElementById('internshipsList');
+        const sectionEl = document.getElementById('internshipsSection');
+        const noMatches = document.getElementById('noMatches');
+        listEl.innerHTML = '';
+        const internships = Array.isArray(data.internships) ? data.internships : [];
+        if (internships.length > 0) {
+          sectionEl.style.display = 'block';
+          noMatches.style.display = 'none';
+          internships.forEach((item, idx) => {
+            const div = document.createElement('div');
+            div.className = 'card';
+            div.innerHTML = `
+              <div class="internship">
+                <div>
+                  <strong>${idx + 1}. ${item.title}</strong> - ${item.company} (${item.location})<br>
+                  <span class="muted">Domain: ${item.domain}</span> | 
+                  <span class="muted">Duration: ${item.duration}</span> | 
+                  <span class="muted">Stipend: ${item.stipend}</span> | 
+                  <span class="muted">Score: ${(item.score * 100).toFixed(0)}%</span>
+                  <p>${item.description}</p>
+                </div>
+                <a class="btn" href="${item.apply_link}" target="_blank" rel="noopener">Apply</a>
+              </div>
+            `;
+            listEl.appendChild(div);
+          });
+        } else {
+          sectionEl.style.display = 'block';
+          noMatches.style.display = 'block';
+        }
+
+        // reset for next upload
+        resumeInput.value = '';
+      } catch (err) {
+        alert('Something went wrong. Please try again.');
+        console.error(err);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.value = original;
+      }
+    });
+  </script>
+
+</body>
+</html>
